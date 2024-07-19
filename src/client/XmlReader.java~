@@ -1,0 +1,77 @@
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import java.io.File;
+
+public class XmlReader {
+
+    public XmlReader() {
+    }
+
+    public Cancion readXml(Cancion s, File f) {
+	try{
+	    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance(); //singleton?
+	    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	    Document doc = dBuilder.parse(f);
+	    doc.getDocumentElement().normalize(); //sera necesario?
+	    System.out.println("Root: " + doc.getDocumentElement().getNodeName());
+	    Element rootElement = doc.getDocumentElement();
+	    NodeList nodes = rootElement.getChildNodes();	    
+	    System.out.println("Length es: " + nodes.getLength());
+	    for(int i=0; i<nodes.getLength(); i++)
+		{  		   
+		    Node node = nodes.item(i);
+		    if(node instanceof Element)
+			{			    
+			    Element child = (Element) node;
+			    /*  
+			    if(child.getTagName().equals("title")) {
+				System.out.println(child.getTagName());
+				//s.setTitle(getTagValue("title", child));
+				//System.out.println(s.getTitle());
+			    }
+			    
+			    else if(child.getTagName().equals("artist")) s.setArtist(getTagValue("artist", child));
+			    else if(child.getTagName().equals("tags")) s.setTags(getTagValue("tags", child));
+			    */
+			    //else 
+				if(child.getTagName().equals("lyrics"))
+				{
+				    String attribute = child.getAttribute("lang");
+				    s.addLyrics(attribute, getTagValue("lyrics", child));
+}
+			    System.out.println(child.getTagName() + child.getAttribute("lang"));
+			}
+		}
+					       					      
+	    NodeList nList = doc.getElementsByTagName("song");
+	    // Haciendo iteracion en caso de tener unificadas todas las canciones en un solo documento xml.
+	    for(int temp=0; temp<nList.getLength(); temp++) {
+		Node nNode = nList.item(temp);
+		if(nNode.getNodeType() == Node.ELEMENT_NODE) {
+		    Element eElement = (Element)nNode;
+
+		    System.out.println("Title: " + getTagValue("title", eElement));
+		    System.out.println("Artist: " + getTagValue("artist", eElement));
+		    s.setTitle(getTagValue("title", eElement));
+		    s.setArtist(getTagValue("artist", eElement));
+		    s.setTags(getTagValue("tags", eElement));
+		    s.setSource(getTagValue("source", eElement)); 
+		}
+	    }
+	} catch (Exception e) {
+		e.printStackTrace();
+	    }
+	    return s;
+    }
+
+	public static String getTagValue(String tag, Element el) {
+	    NodeList nList = el.getElementsByTagName(tag).item(0).getChildNodes();
+	    Node nValue = (Node) nList.item(0);
+	    return nValue.getNodeValue();
+	}
+
+}

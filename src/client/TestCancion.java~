@@ -1,0 +1,23 @@
+import org.junit.*;
+import static org.junit.Assert.*;
+
+public class TestCancion
+{
+    @Test;
+    public void pruebaTitulo()
+    {   
+	Cancion c = new Cancion("Tegami", "Angela Aki", "www.youtube.com");
+	c.setTitle("");
+
+    }
+
+    @Test;
+    public void pruebaCollectionSize()
+    {
+	LocalSongCollection local = LocalSongCollection.getInstace();
+	local.reloadCollection();
+	Vector canciones = local.getCanciones();
+	int size = canciones.size();
+
+    }
+}

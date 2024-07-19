@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+
+<project name="tags" default="jar" basedir=".">
+	
+	<!-- Property files -->
+	<property file="build.properties" />
+ 	<property name="lib.dir" location="lib" />
+  <property name="app.name" 		value="${app.name}" />
+  <property name="build.dir"   	value="${basedir}/build" />
+  <property name="src.dir" 		value="${basedir}/src" />
+  <property name="lib.dir"		value="${basedir}/lib" />
+  <property name="build.lib" 		value="${build.dir}/lib" />
+  <property name="reports.dir" 		value="${basedir}/reports" />
+  <property name ="docs.dir" 		value="doc" />
+	<property name="project.jar" 		value="${app.name}.jar" />
+	<property name="build.src" 		value="${build.dir}/src" />
+  <property name="build.classes"  value="${build.dir}/${app.name}/WEB-INF/classes" />
+    
+  <path id="compile.classpath">
+  	<fileset dir="${lib.dir}">
+    	<include name="**/*.jar"/>
+  	</fileset>
+	</path>
+  
+  <path id="run.classpath">
+  	<!-- Este se pone para cargar el log4j.properties -->
+  	<pathelement path="${basedir}" />
+  	
+		<path refid="compile.classpath"/>
+		<pathelement location="${build.lib}/${project.jar}"/>  	
+	</path>
+  
+  <target name="clean" >
+  	<delete dir="${build.dir}" />
+ 	</target>
+
+	<target name="prepare" depends="clean" description="Create build directories.">
+  	<mkdir dir="${build.dir}/${app.name}" />
+    <mkdir dir="${build.dir}/${app.name}/WEB-INF" />
+    <mkdir dir="${build.dir}/${app.name}/WEB-INF/classes" />
+    <mkdir dir="${build.dir}/${app.name}/WEB-INF/lib" />
+    <mkdir dir="${build.dir}/${app.name}/WEB-INF/jsp" />
+	</target>
+ 
+<!-- =================================================================== -->
+<!-- Construir el paquete JAR principal							        						 -->
+<!-- =================================================================== -->
+
+<target name="compile" depends="prepare" description="Compila los directorios fuente.">
+	<mkdir dir="${build.dir}"/>
+	<!-- Compilar directorios fuente -->
+	<javac destdir="${build.dir}" classpathref="compile.classpath">
+		<src path="${src.dir}" />
+	</javac>
+</target>
+
+<target name="jar" depends="compile" description="Crear los jars de la aplicacion">
+	<!-- Crear directorio build/lib para colocar paquetes -->
+	<mkdir dir="${build.lib}"/>
+	<!-- Construir -->
+	<jar jarfile="${build.lib}/${project.jar}" basedir="${build.dir}" includes="**/**"/>
+</target>
+
+	
+
+<!--******************************************* DOMAIN TASKS ************************************** -->
+
+<target name="Serializar" depends="jar" description="Almacena canciones en archivos xml">
+	       <java classname="OracionTest" fork="true">
+
+	       <classpath refid="run.classpath"/>
+	       <arg value ="data/lyrics/"/>
+	       </java>
+</target>
+
+<target name="run-oracion" depends="jar" description="Inicializa la aplicacion">
+               <java classname="OracionClient" fork="true">
+
+               <classpath refid="run.classpath"/>
+               </java>
+</target>
+
+<target name="TestDB" depends="jar" description="--">
+	       <java classname="Main" fork="true">
+
+	       <classpath refid="run.classpath"/>
+	       </java>
+</target>
+
+<target name="TestReader" depends="jar" description="Tests that XML is reconstructing the Cancion object properly.">
+               <java classname="TestXml" fork="true">
+
+               <classpath refid="run.classpath"/>
+               </java>
+</target>
+
+<target name="TestGUI" depends="jar" description="--">
+	       <java classname="TestGui" fork="true">
+
+	       <classpath refid="run.classpath"/>
+	       </java>
+</target>
+
+<target name="TestSubmit" depends="jar" description="opens submit new song window">
+               <java classname="TestSubmit" fork="true">
+            
+               <classpath refid="run.classpath"/>
+               </java>
+</target>
+
+<target name="unitTests" depends="jar" description="Pruebas unitarias con JUnit">
+               <java classname="TestCancion" fork="true">
+               <classpath refid="run.classpath"/>
+               </java>
+</target>
+
+<target name ="javadoc">
+<javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}">	
+	<fileset dir="${src.dir}">
+	  <include name ="**"/>
+	</fileset>
+</javadoc>
+</target>
+
+<!--******************** TESTING ***********************-->
+
+<target name="run-tests" depends="compile" description="run your test suite" >
+		
+		<junit printsummary="yes" haltonfailure="yes" showoutput="yes" >
+			<classpath>
+				<pathelement path="${build.dir}"/>
+				<fileset dir="lib">
+					<include name="**/*.jar"/>
+				</fileset>
+			</classpath>			
+		
+ 		  <batchtest fork="yes" todir="${reports.dir}/raw/">
+		  	<formatter type="xml"/>
+		    <fileset dir="${src.dir}">
+		      <include name="CancionTest.java"/>
+		    </fileset>
+		  </batchtest>
+		</junit>	
+	</target>
+	
+  <target name ="test" depends="run-tests" description="Correr pruebas y generar reportes">
+		<junitreport todir="${reports.dir}">
+		  <fileset dir="${reports.dir}/raw/">
+		    <include name="TEST-*.xml"/>
+		  </fileset>
+		  <report format="frames" todir="${reports.dir}\html\"/>
+		</junitreport>
+  </target>
+
+
+</project>

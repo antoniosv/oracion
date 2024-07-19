@@ -1,0 +1,171 @@
+/**
+ * @author Jesus Antonio Soto
+ * @version 1.0
+ * @since 2011-September
+ */
+import java.util.*;
+import java.io.File;
+public class LocalSongCollection extends SongCollection
+{
+    private static LocalSongCollection local;
+    /**
+     * Vector que almacena la coleccion, siendo la cancion la unidad.
+     */
+  private Vector canciones;
+    /** 
+     * Constructor para inicializar vector.
+     */
+  private LocalSongCollection()
+  {
+      super();
+      this.canciones = new Vector();
+  }
+
+    public static LocalSongCollection getInstance() {
+	if (local == null) {
+	    local = new  LocalSongCollection();
+	}
+ 
+	return local;
+    }
+    /**
+     * Recorre la coleccion de canciones, sacando las tags
+     *
+     * @return Todas las tags contenidas por cada cancion en la coleccion
+     */
+  public String toString()
+  {
+      int i;
+      String s = new String();
+      for(i=0; i<canciones.size(); i++) {
+	  Cancion c = (Cancion)canciones.get(i);
+	  s = s + "["+c.getTags() + "] "; 
+	  System.out.println(s);
+      }
+      return s;
+  }
+    /**
+     * A&ntilde;ade una nueva canci&oacute;n al vector de la colecci&oacute;n
+     *
+     * @param song que va a ser incluida en la colecci&oacute;n
+     **/
+  public void addToCollection(Cancion song)
+  {
+      canciones.add(song);
+      XmlWriter xerial = new XmlWriter("data/lyrics/");
+      xerial.writeXml(song);
+      return;
+  }
+
+    /**
+     * Elimina una cancion tanto del vector como del folder de letras.
+     *
+     * @param song La cancion a borrar.
+     **/  
+  public void deleteFromCollection(Cancion song)
+  {
+    String path;
+	path = song.getLyricsPath();
+	// Buscar en Vector de canciones
+	// ----
+	// Borrar de directorio 
+	return;
+  }
+
+    /**
+     * Edita una cancion de la coleccion en el vector.
+     * @param vieja cancion actual que se va a editar.
+     * @param nueva cancion con los cambios ya hechos.
+     */
+    public void editSong(Cancion vieja, Cancion nueva)
+    {
+	return;
+    }
+    /**
+     * Busca una cancion de la coleccion en el vector
+     * @param hint con el que se va a buscar la cancion en la coleccion
+     * @return La tabla de dispersion donde se almacena la cancion como llave, y el numero de coincidencias como valor
+     */
+  public Hashtable searchSong(String hint)
+  {
+      Hashtable freq = new Hashtable();
+      int i, j, z, count;
+      String delim = "\\s";
+      String[] info = hint.toLowerCase().split(delim);
+      for(i=0; i<canciones.size(); i++)
+	{
+	    count = 0;
+	    Cancion esta = (Cancion)canciones.get(i);
+	    String s = esta.getTags().toLowerCase();
+	    String[] current = s.split(delim);
+	    for(j=0; j<info.length; j++) 
+		{
+		    for(z=0; z<current.length; z++)
+			{
+			    System.out.println(info[j] + " -> " + current[z]);
+			    if(info[j].equals(current[z])) {
+				count++;
+			    }
+			}		
+		}
+	    if(count > 0) {
+		freq.put(canciones.get(i), count);
+	    }
+	}
+    
+    return freq;
+  } 
+
+  public boolean findSong(String hint)
+  {
+      int i;
+      boolean exists = false;
+      String info = hint;
+      // donde canciones es el vector de canciones de la coleccion local
+      for(i=0; i<canciones.size(); i++)
+	{
+	    Cancion esta = (Cancion)canciones.get(i);
+	    String current = esta.getTitle();
+	    if(info.equalsIgnoreCase(current)) {
+		exists = true;
+		break;
+	    }
+	}
+    return exists;
+  } 
+
+    public Vector getCanciones()
+    {
+	return canciones;
+    }
+
+    public void reloadCollection(String path)
+    {
+	File directorio = new File(path);
+	File[] files = directorio.listFiles();
+	File actual = null;
+	Cancion uta = null;
+	XmlReader reader = new XmlReader();
+	for(int i=0; i<files.length; i++)
+	    {
+		actual = files[i];
+		if(actual.getName().length()>4) {
+		System.out.println(actual.getName() + "hah");
+		//		uta = new Cancion();
+		uta = reader.readXml(actual);
+		canciones.add(uta);
+		}
+	    }
+    }
+
+    public void printCollection()
+    {
+	Cancion c = null;
+	for(int i=0; i<canciones.size(); i++)
+	    {
+		c = (Cancion)canciones.get(i);
+		System.out.println(c.getTitle() + " " +  c.getArtist() + " " + c.getSource() + " " + c.getTags());
+	    }
+    }
+  
+}

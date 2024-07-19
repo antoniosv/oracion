@@ -1,0 +1,68 @@
+import java.awt.event.*;
+import javax.swing.JOptionPane;
+import javax.swing.JFrame;
+public class ControladorSubmit implements ActionListener
+{
+    private VistaSubmit vista;
+    private LocalSongCollection local;
+
+    public ControladorSubmit(VistaSubmit vista, LocalSongCollection local)
+    {
+	this.vista = vista;
+	this.local = local;
+	vista.agregarActionListener(this);
+    }
+
+    public void actionPerformed(ActionEvent e)
+    {
+	String evento = e.getActionCommand();
+	if(evento.equals("submit"))
+	   {
+	       String title = vista.tTitle.getText();
+	       String artist = vista.tArtist.getText();
+	       String source = vista.tSrc.getText();
+	       String tags = vista.tTags.getText();
+	       String language = (String)vista.boxLang.getSelectedItem();
+	       String lyrics = vista.lyrics.getText();
+	       if(title.equals("") || title.length()<3) {
+		   //		   System.out.println("Vacioo");
+		   JFrame frame = new JFrame();
+		   JOptionPane.showMessageDialog(frame, "Must input longer song title");
+	       }
+	       else if (language == null || lyrics.length()<5 || language.length()<3)
+		   {
+		       System.out.println("Nada que guardar");
+		       JFrame frame = new JFrame();
+		       JOptionPane.showMessageDialog(frame, "Must have language selected and appropriate lyrics");
+		   }
+	       else {
+		   Cancion newSong;
+		   if(artist.length()>1 && source.length()>1)
+		       newSong = new Cancion(title, artist, source);
+		   else if(artist.length()>1)
+		       newSong = new Cancion(title, artist);
+		   else
+		       newSong = new Cancion(title);
+		   if(tags.length()>2)
+		       newSong.setTags(tags);
+		   newSong.addLyrics(language, lyrics);
+		   local.addToCollection(newSong);
+		   System.out.println("Todo bien ;D");
+		   vista.frame.dispose();
+	       }
+	       System.out.println(title+artist+source+tags+lyrics);
+	   }
+
+	if(evento.equals("nuevo"))
+	    {
+		String inputLang = JOptionPane.showInputDialog("New language for lyrics:");
+		vista.boxLang.addItem(inputLang);
+	    }
+
+	if(evento.equals("cancel"))
+	    {
+		vista.frame.dispose();
+	    }
+
+    }
+}

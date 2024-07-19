@@ -1,0 +1,16 @@
+public class TestGui {
+
+    public static void main(String [] args) {
+	VistaOracion vista = new VistaOracion();
+	Cancion aishiteru = new Cancion("Aishiteru", "Kourin");
+	aishiteru.addLyrics("Japanese", "nee, mou sukoshi dake.. mou sukoshi dake");
+	aishiteru.addLyrics("English", "Yadayada");
+        aishiteru.addLyrics("日本語", "chuuuu~~ <3");
+
+	VistaLyrics letra = new VistaLyrics(aishiteru);
+	LocalSongCollection canciones = LocalSongCollection.getInstance();
+	ControladorLyrics control = new ControladorLyrics(aishiteru, letra);
+
+    }
+
+}

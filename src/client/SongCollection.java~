@@ -1,0 +1,37 @@
+public class SongCollection
+{
+  private int songCount;
+  private int lyricsCount;
+  private Cancion[] canciones;
+  
+  public Coleccion()
+  {
+    this.lyricsCount = 0;
+	this.songCount = 0;
+	canciones = new Cancion[9000];
+  }
+  
+  public void addToCollection(Cancion song)
+  {
+	canciones[songCount] = song; 
+	this.songCount++;
+  }
+  
+  public void deleteFromCollection(Cancion song)
+  {
+    String path;
+	path = song.getPath();
+	// Buscar en Cancion[]
+	// ----
+	// Borrar de directorio 
+  }
+
+  public String searchSong(String hint)
+  {
+    String path;
+    return path;
+  } 
+
+  public 
+  
+}
